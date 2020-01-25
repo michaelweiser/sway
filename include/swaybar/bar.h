@@ -31,6 +31,7 @@ struct swaybar {
 	struct zwlr_layer_shell_v1 *layer_shell;
 	struct zxdg_output_manager_v1 *xdg_output_manager;
 	struct wl_shm *shm;
+	struct zwp_pointer_gestures_v1 *pointer_gestures;
 
 	struct swaybar_config *config;
 	struct status_line *status;

@@ -34,6 +34,18 @@ runtime.
 	debug-events*. To disable the default behavior for a button, use the
 	command _nop_.
 
+	Special events SWIPE\_{3,4}\_{UP,DOWN,LEFT,RIGHT} respond to three- and
+	four-finger swipe gestures respectively. Gestures have to happen while
+	the pointer is above a bar to be considered. Gesture bindings for other
+	contexts can be configured similarly in sway itself. Bindings with the
+	_released_ flag are executed after the gesture has finished and selected
+	based on the number of fingers used and ultimate overall direction of
+	the gesture. Non-_released_ bindings are executed as soon as the
+	gesture begins. Because the ultimate direction of the swipe cannot be
+	known at this point, all bindings of the respective finger count are
+	executed, limiting the usefulness of multiple direction-based
+	button-pressed gesture bindings.
+
 *binding_mode_indicator* yes|no
 	Enable or disable binding mode indicator. Default is _yes_.
 
