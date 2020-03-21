@@ -448,7 +448,9 @@ void seatop_begin_move_tiling_threshold(struct sway_seat *seat,
 		return;
 	}
 
-	const float *indicator = config->border_colors.focused.indicator;
+	struct border_colors *colors = container_get_window_colors(
+			con, border_color_class_focused);
+	const float *indicator = colors->indicator;
 	float color[4] = {
 		indicator[0] * .5,
 		indicator[1] * .5,

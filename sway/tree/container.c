@@ -187,6 +187,23 @@ static bool container_is_current_parent_focused(struct sway_container *con) {
 	return false;
 }
 
+// recursively obtain current color configuration from container, its parents
+// or the main config
+struct border_colors *container_get_window_colors(
+		struct sway_container *con,
+		enum border_color_class class) {
+	if (!con) {
+		return config->border_colors[class];
+	}
+
+	if (con->border_colors[class]) {
+		return con->border_colors[class];
+	}
+
+	// will hit non-NULL check above at root
+	return container_get_window_colors(con->current.parent, class);
+}
+
 static struct border_colors *container_get_current_colors(
 		struct sway_container *con) {
 	struct border_colors *colors;
@@ -204,15 +221,15 @@ static struct border_colors *container_get_current_colors(
 	}
 
 	if (urgent) {
-		colors = &config->border_colors.urgent;
+		colors = container_get_window_colors(con, border_color_class_urgent);
 	} else if (con->current.focused || container_is_current_parent_focused(con)) {
-		colors = &config->border_colors.focused;
+		colors = container_get_window_colors(con, border_color_class_focused);
 	} else if (config->has_focused_tab_title && container_has_focused_child(con)) {
-		colors = &config->border_colors.focused_tab_title;
+		colors = container_get_window_colors(con, border_color_class_focused_tab_title);
 	} else if (con == active_child) {
-		colors = &config->border_colors.focused_inactive;
+		colors = container_get_window_colors(con, border_color_class_focused_inactive);
 	} else {
-		colors = &config->border_colors.unfocused;
+		colors = container_get_window_colors(con, border_color_class_unfocused);
 	}
 
 	return colors;
@@ -499,6 +516,13 @@ void container_destroy(struct sway_container *con) {
 	list_free(con->current.children);
 
 	list_free_items_and_destroy(con->marks);
+
+	free(con->border_colors[border_color_class_focused]);
+	free(con->border_colors[border_color_class_focused_inactive]);
+	free(con->border_colors[border_color_class_focused_tab_title]);
+	free(con->border_colors[border_color_class_unfocused]);
+	free(con->border_colors[border_color_class_urgent]);
+	free(con->border_colors[border_color_class_placeholder]);
 
 	if (con->view && con->view->container == con) {
 		con->view->container = NULL;
