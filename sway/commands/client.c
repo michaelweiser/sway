@@ -6,13 +6,45 @@
 #include "util.h"
 
 static void rebuild_textures_iterator(struct sway_container *con, void *data) {
+	container_update_border_colors(con);
 	container_update_marks_textures(con);
 	container_update_title_textures(con);
 }
 
 static struct cmd_results *handle_command(int argc, char **argv, char *cmd_name,
-		struct border_colors *class, const char *default_indicator) {
+		struct border_colors **class, const char *default_indicator) {
 	struct cmd_results *error = NULL;
+	if ((error = checkarg(argc, cmd_name, EXPECTED_AT_LEAST, 1))) {
+		return error;
+	}
+
+	struct sway_container *con = config->handler_context.container;
+	if (strcmp(argv[0], "global") == 0) {
+		con = NULL;
+		--argc;
+		++argv;
+	}
+
+	if (con && con->view) {
+		size_t class_offset = class - &config->border_colors.focused;
+		class = &con->border_color_config.focused + class_offset;
+	}
+
+	if ((error = checkarg(argc, cmd_name, EXPECTED_AT_LEAST, 1))) {
+		return error;
+	}
+
+	if (strcmp(argv[0], "default") == 0) {
+		if (!con) {
+			return cmd_results_new(CMD_INVALID, "default subcommand "
+					"only works on containers");
+		}
+
+		if (*class) {
+			free(*class);
+			*class = NULL;
+		}
+	} else {
 	if ((error = checkarg(argc, cmd_name, EXPECTED_AT_LEAST, 3)) ||
 			(error = checkarg(argc, cmd_name, EXPECTED_AT_MOST, 5))) {
 		return error;
@@ -42,7 +74,17 @@ static struct cmd_results *handle_command(int argc, char **argv, char *cmd_name,
 		color_to_rgba(*properties[i].rgba, color);
 	}
 
-	memcpy(class, &colors, sizeof(struct border_colors));
+		// avoid needless reallocation to prevent heap fragmentation
+		if (!*class) {
+			*class = calloc(1, sizeof(**class));
+			if (!*class) {
+				return cmd_results_new(CMD_INVALID, "Unable "
+						"to allocate color configuration");
+			}
+		}
+
+		memcpy(*class, &colors, sizeof(**class));
+	}
 
 	if (config->active) {
 		root_for_each_container(rebuild_textures_iterator, NULL);
