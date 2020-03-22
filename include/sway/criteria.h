@@ -24,6 +24,18 @@ struct pattern {
 	pcre *regex;
 };
 
+enum criteria_idle_inhibitor {
+	// implicit: C_IDLE_INHIBITOR_UNSPEC = 0,
+	C_IDLE_INHIBITOR_NONE = 1,
+	C_IDLE_INHIBITOR_APPLICATION,
+	C_IDLE_INHIBITOR_USER,
+	C_IDLE_INHIBITOR_FOCUS,
+	C_IDLE_INHIBITOR_FULLSCREEN,
+	C_IDLE_INHIBITOR_OPEN,
+	C_IDLE_INHIBITOR_VISIBLE,
+	C_IDLE_INHIBITOR_ACTIVE,
+};
+
 enum criteria_keyboard_shortcuts_inhibitor {
 	// implicit: C_KEYBOARD_SHORTCUTS_INHIBITOR_UNSPEC = 0,
 	C_KEYBOARD_SHORTCUTS_INHIBITOR_PRESENT = 1,
@@ -55,6 +67,7 @@ struct criteria {
 	char urgent; // 'l' for latest or 'o' for oldest
 	struct pattern *workspace;
 	pid_t pid;
+	enum criteria_idle_inhibitor idle_inhibitor;
 	enum criteria_keyboard_shortcuts_inhibitor keyboard_shortcuts_inhibitor;
 };
 
