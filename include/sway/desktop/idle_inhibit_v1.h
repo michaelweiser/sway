@@ -39,6 +39,9 @@ void sway_idle_inhibit_v1_check_active(
 void sway_idle_inhibit_v1_user_inhibitor_register(struct sway_view *view,
 		enum sway_idle_inhibit_mode mode);
 
+struct sway_idle_inhibitor_v1 *sway_idle_inhibit_v1_inhibitor_for_view(
+		struct sway_view *view);
+
 struct sway_idle_inhibitor_v1 *sway_idle_inhibit_v1_user_inhibitor_for_view(
 		struct sway_view *view);
 
