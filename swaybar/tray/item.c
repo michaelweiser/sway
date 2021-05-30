@@ -16,6 +16,7 @@
 #include "cairo_util.h"
 #include "list.h"
 #include "log.h"
+#include "swaybar/tray/dbusmenu.h"
 #include "wlr-layer-shell-unstable-v1-client-protocol.h"
 
 // TODO menu
@@ -312,6 +313,8 @@ void destroy_sni(struct swaybar_sni *sni) {
 		return;
 	}
 
+	sway_log(SWAY_DEBUG, "Destroy sni");
+
 	cairo_surface_destroy(sni->icon);
 	free(sni->watcher_id);
 	free(sni->service);
@@ -333,8 +336,14 @@ void destroy_sni(struct swaybar_sni *sni) {
 	free(sni);
 }
 
-static void handle_click(struct swaybar_sni *sni, int x, int y,
-		uint32_t button, int delta) {
+static void handle_click(struct swaybar_sni *sni,
+		struct swaybar_output *output,
+		struct swaybar_seat *seat,
+		uint32_t serial,
+		int x,
+		int y,
+		uint32_t button,
+		int delta) {
 	const char *method = NULL;
 	struct tray_binding *binding = NULL;
 	wl_list_for_each(binding, &sni->tray->bar->config->tray_bindings, link) {
@@ -365,7 +374,11 @@ static void handle_click(struct swaybar_sni *sni, int x, int y,
 		method = "ContextMenu";
 	}
 
-	if (strncmp(method, "Scroll", strlen("Scroll")) == 0) {
+	if (sni->menu && strcmp(method, "ContextMenu") == 0) {
+		if (!sni->tray->menu) {
+			swaybar_dbusmenu_create(sni, output, seat, serial, x, y);
+		}
+	} else if (strncmp(method, "Scroll", strlen("Scroll")) == 0) {
 		char dir = method[strlen("Scroll")];
 		char *orientation = (dir == 'U' || dir == 'D') ? "vertical" : "horizontal";
 		int sign = (dir == 'U' || dir == 'L') ? -1 : 1;
@@ -384,8 +397,14 @@ static int cmp_sni_id(const void *item, const void *cmp_to) {
 }
 
 static enum hotspot_event_handling icon_hotspot_callback(
-		struct swaybar_output *output, struct swaybar_hotspot *hotspot,
-		double x, double y, uint32_t button, void *data) {
+		struct swaybar_output *output,
+		struct swaybar_hotspot *hotspot,
+		struct swaybar_seat *seat,
+		uint32_t serial,
+		double x,
+		double y,
+		uint32_t button,
+		void *data) {
 	sway_log(SWAY_DEBUG, "Clicked on %s", (char *)data);
 
 	struct swaybar_tray *tray = output->bar->tray;
@@ -401,7 +420,14 @@ static enum hotspot_event_handling icon_hotspot_callback(
 				(int) output->output_height - config->gaps.bottom - y);
 
 		sway_log(SWAY_DEBUG, "Guessing click position at (%d, %d)", global_x, global_y);
-		handle_click(sni, global_x, global_y, button, 1); // TODO get delta from event
+		handle_click(sni,
+				output,
+				seat,
+				serial,
+				global_x,
+				global_y,
+				button,
+				1); // TODO get delta from event
 		return HOTSPOT_IGNORE;
 	} else {
 		sway_log(SWAY_DEBUG, "but it doesn't exist");

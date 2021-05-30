@@ -159,8 +159,14 @@ static void render_sharp_line(cairo_t *cairo, uint32_t color,
 }
 
 static enum hotspot_event_handling block_hotspot_callback(
-		struct swaybar_output *output, struct swaybar_hotspot *hotspot,
-		double x, double y, uint32_t button, void *data) {
+		struct swaybar_output *output,
+		struct swaybar_hotspot *hotspot,
+		struct swaybar_seat *seat,
+		uint32_t serial,
+		double x,
+		double y,
+		uint32_t button,
+		void *data) {
 	struct i3bar_block *block = data;
 	struct status_line *status = output->bar->status;
 	return i3bar_block_send_click(status, block, x, y,
@@ -297,7 +303,7 @@ static uint32_t render_status_block(struct render_context *ctx,
 	} else if (strncmp(block->align, "right", 5) == 0) {
 		offset = x_pos + width - text_width;
 	} else if (strncmp(block->align, "center", 6) == 0) {
-		offset = x_pos + (width - text_width) / 2;
+		offset = x_pos + (width - text_width) / 2.0;
 	}
 	double text_y = height / 2.0 - text_height / 2.0;
 	cairo_move_to(cairo, offset, (int)floor(text_y));
@@ -327,7 +333,7 @@ static uint32_t render_status_block(struct render_context *ctx,
 		}
 		cairo_set_source_u32(cairo, color);
 		if (config->sep_symbol) {
-			offset = x_pos + (sep_block_width - sep_width) / 2;
+			offset = x_pos + (sep_block_width - sep_width) / 2.0;
 			double sep_y = height / 2.0 - sep_height / 2.0;
 			cairo_move_to(cairo, offset, (int)floor(sep_y));
 			choose_text_aa_mode(ctx, color);
@@ -336,7 +342,7 @@ static uint32_t render_status_block(struct render_context *ctx,
 		} else {
 			cairo_set_operator(cairo, CAIRO_OPERATOR_SOURCE);
 			cairo_set_line_width(cairo, 1);
-			cairo_move_to(cairo, x_pos + sep_block_width / 2, margin);
+			cairo_move_to(cairo, x_pos + sep_block_width / 2.0, margin);
 			cairo_line_to(cairo, x_pos + sep_block_width / 2, height - margin);
 			cairo_stroke(cairo);
 		}
@@ -598,8 +604,14 @@ static uint32_t render_binding_mode_indicator(struct render_context *ctx,
 }
 
 static enum hotspot_event_handling workspace_hotspot_callback(
-		struct swaybar_output *output, struct swaybar_hotspot *hotspot,
-		double x, double y, uint32_t button, void *data) {
+		struct swaybar_output *output,
+		struct swaybar_hotspot *hotspot,
+		struct swaybar_seat *seat,
+		uint32_t serial,
+		double x,
+		double y,
+		uint32_t button,
+		void *data) {
 	if (button != BTN_LEFT) {
 		return HOTSPOT_PROCESS;
 	}
@@ -664,7 +676,8 @@ static uint32_t render_workspace_button(struct render_context *ctx,
 
 	double text_y = height / 2.0 - text_height / 2.0;
 	cairo_set_source_u32(cairo, box_colors.text);
-	cairo_move_to(cairo, *x + width / 2 - text_width / 2, (int)floor(text_y));
+	cairo_move_to(
+			cairo, *x + width / 2.0 - text_width / 2.0, (int)floor(text_y));
 	choose_text_aa_mode(ctx, box_colors.text);
 	render_text(cairo, config->font, 1, config->pango_markup,
 			"%s", ws->label);
