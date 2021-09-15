@@ -327,6 +327,12 @@ static void wl_pointer_frame(void *data, struct wl_pointer *wl_pointer) {
 	struct swaybar_pointer *pointer = &seat->pointer;
 	struct swaybar_output *output = pointer->current;
 
+#if HAVE_TRAY
+	if (dbusmenu_pointer_frame(data, wl_pointer)) {
+		return;
+	}
+#endif
+
 	if (output == NULL) {
 		return;
 	}

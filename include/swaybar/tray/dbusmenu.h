@@ -22,4 +22,7 @@ bool dbusmenu_pointer_enter(void *data, struct wl_pointer *wl_pointer,
 bool dbusmenu_pointer_leave(void *data, struct wl_pointer *wl_pointer,
 		uint32_t serial, struct wl_surface *surface);
 
+bool dbusmenu_pointer_frame(struct swaybar_seat *data,
+		struct wl_pointer *wl_pointer);
+
 #endif
