@@ -670,12 +670,6 @@ static void swaybar_dbusmenu_draw(struct swaybar_dbusmenu *dbusmenu, int id) {
 		return;
 	}
 	swaybar_dbusmenu_draw_menu(dbusmenu->menu, id, true);
-
-	if (!dbusmenu->sni->tray->menu_pointer_focus) {
-		// First shown
-		dbusmenu->sni->tray->menu_pointer_focus =
-				find_menu_id(dbusmenu->menu, id);
-	}
 }
 
 struct png_stream {
