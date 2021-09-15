@@ -1127,6 +1127,21 @@ static void close_child_menus(struct swaybar_dbusmenu_menu *menu) {
 	}
 }
 
+static void close_child_menus_except(struct swaybar_dbusmenu_menu *menu,
+		int id) {
+	if (!menu || !menu->child_menus) {
+		return;
+	}
+
+	for (int i = 0; i < menu->child_menus->length; ++i) {
+		struct swaybar_dbusmenu_menu *child_menu = menu->child_menus->items[i];
+		if (child_menu->item_id == id) {
+			continue;
+		}
+		close_menus(child_menu);
+	}
+}
+
 static void open_close_child_menu(struct swaybar_dbusmenu_menu *menu,
 		struct swaybar_dbusmenu_menu_item *item, int x, int y) {
 
@@ -1137,6 +1152,7 @@ static void open_close_child_menu(struct swaybar_dbusmenu_menu *menu,
 			// No need to open the root menu
 			return;
 		}
+		close_child_menus_except(menu, item->id);
 		open_menu_id(menu->dbusmenu, item->id);
 	} else if (in_hotspot && !item->submenu) {
 		close_child_menus(menu);
