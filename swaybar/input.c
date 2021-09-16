@@ -311,6 +311,12 @@ static void wl_pointer_axis(void *data, struct wl_pointer *wl_pointer,
 		return;
 	}
 
+#if HAVE_TRAY
+	if (dbusmenu_pointer_axis(data, wl_pointer)) {
+		return;
+	}
+#endif
+
 	// If there's a while since the last scroll event,
 	// set 'value' to zero as if to reset the "virtual scroll wheel"
 	if (seat->axis[axis].discrete_steps == 0 &&

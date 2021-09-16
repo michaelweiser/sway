@@ -1256,6 +1256,15 @@ bool dbusmenu_pointer_frame(struct swaybar_seat *data,
 	return true;
 }
 
+bool dbusmenu_pointer_axis(struct swaybar_seat *data,
+		struct wl_pointer *wl_pointer) {
+	struct swaybar_tray *tray = data->bar->tray;
+	if (!(tray && tray->menu && tray->menu_pointer_focus)) {
+		return false;
+	}
+	return true;
+}
+
 bool dbusmenu_pointer_enter(void *data, struct wl_pointer *wl_pointer,
 		uint32_t serial, struct wl_surface *surface, wl_fixed_t surface_x,
 		wl_fixed_t surface_y) {
