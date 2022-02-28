@@ -1199,6 +1199,9 @@ bool dbusmenu_pointer_motion(struct swaybar_seat *seat,
 
 static struct swaybar_dbusmenu_menu *dbusmenu_menu_find_menu_surface(
 		struct swaybar_dbusmenu_menu *menu, struct wl_surface *surface) {
+	if (!menu) {
+		return NULL;
+	}
 
 	if (menu->surface && menu->surface->surface == surface) {
 		return menu;
