@@ -592,7 +592,7 @@ static void swaybar_dbusmenu_draw_menu(struct swaybar_dbusmenu_menu *menu,
 		cairo_surface_destroy(recorder);
 		return;
 	}
-	int surface_x, surface_y, surface_width, surface_height;
+	int surface_x, surface_y, surface_width, surface_height = 0;
 	draw_menu_items(cairo, menu, &surface_x, &surface_y, &surface_width,
 					&surface_height, open);
 
